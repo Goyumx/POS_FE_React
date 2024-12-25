@@ -46,7 +46,7 @@ function Stock(){
         setStocks(response.data);
     }
 
-    const [editing,setEditing]=useState<StockType>();
+    const [editing,setEditing]=useState<StockType|null>();
 
     function editStock(stock : StockType){
         setEditing(stock);
@@ -63,6 +63,9 @@ function Stock(){
 
         try {
             await axios.put(`http://localhost:8081/stock/${editing?.stockId}`,data);
+            setEditing(null);
+            setStockName("");
+            setStockDescription("");
             loadStock();
         } catch (error) {
             console.log(error);

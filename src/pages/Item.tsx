@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import ItemType from "../types/itemType";
+import ItemType from "../types/ItemType";
 import axios from "axios";
 import StockType from "../types/StockType";
 import CategoryType from "../types/CategotyType";
@@ -57,7 +57,7 @@ function Item(){
         setItemQty(Item.qty);
         setItemDescription(Item.description);
         setCategoryId(Item.itemCategory?.categoryId);
-        console.log(Item)
+        console.log(stocks)
         
     }
 
@@ -110,7 +110,9 @@ function Item(){
         }
         try {
             await axios.put(`http://localhost:8081/item/${editing?.itemId}`, data);
+            setEditing(null);
             loadItems();
+            setEditing(null);
             setItemName("");
             setItemPrice(0);
             setItemQty(0);

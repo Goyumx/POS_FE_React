@@ -12,7 +12,7 @@ function Category(){
         setCategoryName(event.target.value);    
     }
 
-    const [editing,setEditing]=useState<CategoryType>();
+    const [editing,setEditing]=useState<CategoryType|null>(null);
     
     function editCategory(categorty:CategoryType){
         setEditing(categorty);
@@ -26,7 +26,9 @@ function Category(){
         
         try {
             await axios.put(`http://localhost:8081/category/${editing?.categoryId}`,data);
+            setEditing(null);
             loadCategories();
+            setCategoryName("");
         } catch (error) {
             console.log(error);
         }
