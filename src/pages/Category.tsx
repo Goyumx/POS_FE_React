@@ -1,9 +1,16 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import CategoryType from "../types/CategotyType";
+import { useAuth } from "../context/AuthContext";
 
 function Category(){
 
+    const { isAuthenticated, jwtToken } = useAuth();
+
+    const config = {
+        headers:{ Authorization :`Bearer ${jwtToken}`}
+    }
+    
     const [categories, setCategories] = useState<CategoryType[]>([]);
 
     const [categoryName, setCategoryName] = useState<string>("");
@@ -25,7 +32,7 @@ function Category(){
         }
         
         try {
-            await axios.put(`http://localhost:8081/category/${editing?.categoryId}`,data);
+            await axios.put(`http://localhost:8081/category/${editing?.categoryId}`,data,config);
             setEditing(null);
             loadCategories();
             setCategoryName("");
@@ -35,20 +42,20 @@ function Category(){
     }
 
     async function loadCategories() {
-        const response = await axios.get("http://localhost:8081/category"); 
+        const response = await axios.get("http://localhost:8081/category",config); 
         setCategories(response.data);
     }
 
     async function handleSubmit(){
         const data ={categoryName:categoryName}
-        const response = await axios.post("http://localhost:8081/category",data);
+        const response = await axios.post("http://localhost:8081/category",data,config);
         console.log(response);
         loadCategories();
     }
 
     async function deleteCategory(categoryId : number) {
         try {
-            await axios.delete(`http://localhost:8081/category/${categoryId}`);
+            await axios.delete(`http://localhost:8081/category/${categoryId}`,config);
             loadCategories();
         } catch (error) {
             console.log(error);
@@ -56,8 +63,11 @@ function Category(){
     }
 
     useEffect(function () {
-            loadCategories(); 
-    }, [])
+        if(isAuthenticated){
+            loadCategories();
+            console.log(config)
+        }      
+    }, [isAuthenticated])
 
     return(
         

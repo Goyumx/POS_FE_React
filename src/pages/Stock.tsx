@@ -1,10 +1,18 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import StockType from "../types/StockType";
+import { useAuth } from "../context/AuthContext";
 
 
 function Stock(){
 
+    const { isAuthenticated, jwtToken } = useAuth();
+
+    const config = {
+        headers: {
+            Authorization: `Bearer ${jwtToken}`
+        }
+    }
     const [stocks, setStocks] =useState<StockType[]>([]);
 
     const[stockName,setStockName]=useState<string>("");
@@ -25,7 +33,7 @@ function Stock(){
             description:stockDescription
         }
         try {
-            await axios.post("http://localhost:8081/stock",data);
+            await axios.post("http://localhost:8081/stock",data,config);
             loadStock();
         } catch (error) {
             console.log(error);
@@ -34,7 +42,7 @@ function Stock(){
     async function deletStock(stockId :number) {
         try {
             console.log(stockId)
-            await axios.delete(`http://localhost:8081/stock/${stockId}`);
+            await axios.delete(`http://localhost:8081/stock/${stockId}`,config);
             loadStock();
         } catch (error) {
             console.log(error);
@@ -42,7 +50,7 @@ function Stock(){
     }
 
     async function loadStock(){
-        const response = await axios.get("http://localhost:8081/stock");
+        const response = await axios.get("http://localhost:8081/stock",config);
         setStocks(response.data);
     }
 
@@ -62,7 +70,7 @@ function Stock(){
         }
 
         try {
-            await axios.put(`http://localhost:8081/stock/${editing?.stockId}`,data);
+            await axios.put(`http://localhost:8081/stock/${editing?.stockId}`,data,config);
             setEditing(null);
             setStockName("");
             setStockDescription("");
@@ -73,8 +81,10 @@ function Stock(){
     }
 
     useEffect(function(){
-        loadStock();
-    },[])
+        if(isAuthenticated){
+            loadStock();
+        }    
+    },[isAuthenticated])
 
 
     return (

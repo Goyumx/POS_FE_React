@@ -2,22 +2,32 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import PurchaseType from "../../types/PurchaseType";
+import { useAuth } from "../../context/AuthContext";
 
 function Purchase() {
 
+    const { isAuthenticated, jwtToken } = useAuth();
+    
+    const config = {
+        headers:{ Authorization :`Bearer ${jwtToken}`}
+    }
+    
     const [purchases, setPurchases] = useState<PurchaseType[]>([]);
 
     async function loadPurchase() {
         try {
-            const response = await axios.get("http://localhost:8081/purchase");
+            const response = await axios.get("http://localhost:8081/purchase",config);
             setPurchases(response.data);
         } catch (error) {
             console.log(error);
         }
     }
     useEffect(function() {
-        loadPurchase();
-    },[])
+        if(isAuthenticated){
+            loadPurchase();
+        }
+    },[isAuthenticated])
+
     return (
         <div className="container mx-auto pt-5 pb-5">
             <h1 className="text-3xl font-semibold mb-5">Purchases</h1>

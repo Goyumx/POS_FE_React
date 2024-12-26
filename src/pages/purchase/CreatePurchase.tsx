@@ -2,9 +2,14 @@ import { useEffect, useState } from "react";
 import ItemType from "../../types/ItemType";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 
 function CreatePurchase(){
-
+    const {  jwtToken } = useAuth();
+    
+    const config = {
+        headers:{ Authorization :`Bearer ${jwtToken}`}
+    }
     const[products, setProducts]= useState<ItemType[]>([]);
     const[purchasedItems, setPurchasedItems] =useState<ItemType[]>([]);
     const[total, setTotal]=useState<number>(0);
@@ -23,7 +28,7 @@ function CreatePurchase(){
 
     async function loadItems() {
         try {
-            const response = await axios.get("http://localhost:8081/item");
+            const response = await axios.get("http://localhost:8081/item",config);
             setProducts(response.data);
         } catch (error) {
             console.log(error);
@@ -43,7 +48,7 @@ function CreatePurchase(){
             purchased_items.push(item.itemId);
         });
         try {
-            await axios.post("http://localhost:8081/purchase",{ purchased_items : purchased_items});
+            await axios.post("http://localhost:8081/purchase",{ purchased_items : purchased_items},config);
             navigate("/purchase")
         } catch (error) {
             console.log(error)

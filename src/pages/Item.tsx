@@ -3,11 +3,20 @@ import ItemType from "../types/ItemType";
 import axios from "axios";
 import StockType from "../types/StockType";
 import CategoryType from "../types/CategotyType";
+import { useAuth } from "../context/AuthContext";
 
 
 
 function Item(){
 
+    const { isAuthenticated, jwtToken } = useAuth();
+    
+    const config = {
+        headers: {
+            Authorization: `Bearer ${jwtToken}`
+        }
+    }
+        
     const[items,setItems]=useState<ItemType[]>([]);
 
     const[itemName,setItemName]=useState<string>("");
@@ -62,17 +71,17 @@ function Item(){
     }
 
     async function loadItems() {
-        const response = await axios.get("http://localhost:8081/item");
+        const response = await axios.get("http://localhost:8081/item", config);
         setItems(response.data);
     }
     
     async function loadCategories() {
-        const response = await axios.get("http://localhost:8081/category"); 
+        const response = await axios.get("http://localhost:8081/category", config); 
         setCategories(response.data);
     }
 
     async function loadStock(){
-        const response = await axios.get("http://localhost:8081/stock");
+        const response = await axios.get("http://localhost:8081/stock", config);
         setStocks(response.data);
     }
 
@@ -86,7 +95,7 @@ function Item(){
             stockIds:stockId
         }
         try {
-            await axios.post("http://localhost:8081/item", data);
+            await axios.post("http://localhost:8081/item", data, config);
             loadItems();
             setItemName("");
             setItemPrice(0);
@@ -109,7 +118,7 @@ function Item(){
             stockIds:stockId
         }
         try {
-            await axios.put(`http://localhost:8081/item/${editing?.itemId}`, data);
+            await axios.put(`http://localhost:8081/item/${editing?.itemId}`, data, config);
             setEditing(null);
             loadItems();
             setEditing(null);
@@ -126,7 +135,7 @@ function Item(){
 
     async function deleteItem(ItemId: number) {
         try {
-            await axios.delete(`http://localhost:8081/item/${ItemId}`);
+            await axios.delete(`http://localhost:8081/item/${ItemId}`, config);
             loadItems();
         } catch (error) {
             console.log(error);
@@ -134,11 +143,13 @@ function Item(){
     }
 
     useEffect(function(){
-        loadItems();
-        loadCategories();
-        loadStock();
-
-    },[])
+        if(isAuthenticated){
+            loadItems();
+            loadCategories();
+            loadStock();
+            console.log(config)
+        }  
+    },[isAuthenticated])
 
     return (
         <div className="container mx-auto pt-5 pb-5">
